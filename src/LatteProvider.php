@@ -1,8 +1,10 @@
 <?php
 
-namespace Dasim\LaravelLatte;
+namespace wodCZ\LaravelLatte;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\View\FileViewFinder;
 use Latte;
 
 class LatteProvider extends ServiceProvider
@@ -12,9 +14,18 @@ class LatteProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(Application $app)
     {
-        //
+
+        $view = $app['view'];
+        $resolver = $app['view.engine.resolver'];
+
+        $view->addExtension('latte', 'latte');
+
+        $resolver->register('latte', function () use ($app) {
+            return new LatteEngineBridge($app['latte.engine']);
+        });
+
     }
 
     /**
@@ -26,15 +37,21 @@ class LatteProvider extends ServiceProvider
     {
         $this->app->singleton('latte.engine', function ($app) {
             $latte = new Latte\Engine;
+
+            $latte->setAutoRefresh($app['config']['app.debug']);
             $latte->setTempDirectory($app['config']['view.compiled']);
             return $latte;
         });
-        $this->app->singleton('latte.globals', function ($app) {
-            return new LatteGlobals;
+
+        # override view.finder as we need to register latte extension
+        # would be replaced with extension registration in boot if view.finder is not registered with bind()
+        $this->app->bind('view.finder', function ($app) {
+            $paths = $app['config']['view.paths'];
+
+            $fileViewFinder = new FileViewFinder($app['files'], $paths);
+            $fileViewFinder->addExtension('latte');
+            return $fileViewFinder;
         });
 
-        $this->app->bind('view', function ($app) {
-            return new LatteFactory($app);
-        });
     }
 }
