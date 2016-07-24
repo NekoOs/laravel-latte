@@ -2,36 +2,19 @@
 
 namespace wodCZ\LaravelLatte;
 
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\View\FileViewFinder;
 use Latte;
 
 class LatteProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap the application services.
-     *
-     * @return void
-     */
-    public function boot(Application $app)
-    {
-
-        $view = $app['view'];
-        $resolver = $app['view.engine.resolver'];
-
-        $view->addExtension('latte', 'latte');
-
-        $resolver->register('latte', function () use ($app) {
-            return new LatteEngineBridge($app['latte.engine']);
-        });
-
-    }
 
     /**
      * Register the application services.
      *
      * @return void
+     * @throws \InvalidArgumentException
      */
     public function register()
     {
@@ -43,15 +26,15 @@ class LatteProvider extends ServiceProvider
             return $latte;
         });
 
-        # override view.finder as we need to register latte extension
-        # would be replaced with extension registration in boot if view.finder is not registered with bind()
-        $this->app->bind('view.finder', function ($app) {
-            $paths = $app['config']['view.paths'];
+        $this->app->resolving('view', function (Factory $viewFactory, Application $app) {
 
-            $fileViewFinder = new FileViewFinder($app['files'], $paths);
-            $fileViewFinder->addExtension('latte');
-            return $fileViewFinder;
+            if ($viewFactory instanceof \Illuminate\View\Factory) {
+                $viewFactory->addExtension('latte', 'latte', function () use ($app) {
+                    return new LatteEngineBridge($app['latte.engine']);
+                });
+            } else {
+                throw new \InvalidArgumentException('Can\'t register Latte\Engine, ' . get_class($viewFactory) . ' view factory is not supported.');
+            }
         });
-
     }
 }

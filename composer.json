@@ -5,7 +5,8 @@
     "license": "MIT",
     "require":{
         "php": ">=5.5.9",
-        "latte/latte": "^2.3"
+        "latte/latte": "^2.3",
+        "laravel/framework": "^5.2"
     },
     "autoload": {
         "psr-4": {
