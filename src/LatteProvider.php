@@ -1,6 +1,6 @@
 <?php
 
-namespace wodCZ\LaravelLatte;
+namespace NekoOs\LaravelLatte;
 
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;

@@ -1,8 +1,7 @@
 <?php
 
 
-namespace wodCZ\LaravelLatte;
-
+namespace NekoOs\LaravelLatte;
 
 use Illuminate\Contracts\View\Engine as EngineInterface;
 use Latte\Engine;
