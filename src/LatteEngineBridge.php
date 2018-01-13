@@ -4,7 +4,7 @@
 namespace wodCZ\LaravelLatte;
 
 
-use Illuminate\View\Engines\EngineInterface;
+use Illuminate\Contracts\View\Engine as EngineInterface;
 use Latte\Engine;
 
 class LatteEngineBridge implements EngineInterface
